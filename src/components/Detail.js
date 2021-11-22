@@ -1,18 +1,41 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import db from "../firebase";
+import { doc, onSnapshot, collection, query, getDoc } from "firebase/firestore"; 
 
 const Detail = (props) => {
+    const { id } = useParams();
+    const [detailData, setDetailData] = useState({});
+
+    useEffect(() => {
+        // const q = query(collection(db, "movies"));
+        
+        const d = getDoc(doc(db, 'movies', id)).then((doc) => {
+            if (doc.exists) {
+                setDetailData(doc.data());
+            } else {
+            console.log("no such document in firebase 🔥");
+            }
+        })
+        .catch((error) => {
+            console.log("Error getting document:", error);
+        });
+
+    }, [id]);
+
     return (
         <Container>
             <Background>
                 <img 
-                    src=''
-                    alt=''
+                    src={detailData.backgroundImg}
+                    alt={detailData.title}
                 />
             </Background>
             <ImageTitle>
                 <img 
-                    src=''
-                    alt=''
+                    src={detailData.titleImg}
+                    alt={detailData.title}
                 />
             </ImageTitle>
             <ContentMeta>
@@ -36,10 +59,10 @@ const Detail = (props) => {
                     </GroupWatch>
                 </Controls>
                 <SubTitle>
-                    SubTitle
+                    {detailData.subTitle}
                 </SubTitle>
                 <Description>
-                    Desc
+                    {detailData.description}
                 </Description>
             </ContentMeta>
         </Container>
